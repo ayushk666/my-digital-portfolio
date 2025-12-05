@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Shield, X } from "lucide-react";
@@ -14,7 +14,13 @@ import { useAdmin } from "@/hooks/use-admin";
 export default function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAdmin } = useAdmin();
+  const { isAdmin, isLoading } = useAdmin();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering dynamic content after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const navLinks = [
     { href: "/", label: "Home" },
@@ -77,7 +83,7 @@ export default function Navbar() {
                 ))}
                 
                 {/* Add Admin link in mobile menu */}
-                {isAdmin && (
+                {isMounted && isAdmin && (
                   <Link
                     href={adminLink.href}
                     className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
@@ -128,7 +134,7 @@ export default function Navbar() {
 
           {/* Admin dashboard button */}
           <SignedIn>
-            {isAdmin && (
+            {isMounted && isAdmin && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={adminLink.href} className="flex items-center gap-2">
                   {adminLink.label}
